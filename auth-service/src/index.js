@@ -1,4 +1,5 @@
 require('dotenv').config();
+const sequelize = require('./db');
 const repo = require('./repository')
 const express = require('express');
 const bcrypt = require('bcrypt');
@@ -7,6 +8,10 @@ const pool = require('./db');
 const app = express();
 const port = process.env.PORT || 3000;
 const jwtSecret = process.env.JWT_SECRET;
+
+sequelize.authenticate()
+  .then(() => console.log('Conexão com o banco de dados estabelecida.'))
+  .catch(err => console.error('Erro ao conectar com o banco de dados:', err));
 
 app.use(express.json()); // Para parsear JSON no corpo das requisições
 
@@ -40,12 +45,8 @@ app.post('/create-user', async (req, res) => {
     const createdAt = new Date();
     const hashedSenha = await bcrypt.hash(senha, 10); // 10 é o número de rounds para o salt
 
-    const newUser = await pool.query(
-      'INSERT INTO users (email, senha, created_at) VALUES ($1, $2, $3) RETURNING *', 
-      [email, hashedSenha, createdAt]
-    );
-    
-    res.json(newUser.rows[0]);
+    const newUser = await repo.createUser(email, hashedSenha, createdAt)
+    res.json(newUser);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

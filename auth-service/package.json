@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node ./src/index.js",
     "dev": "nodemon ./src/index.js",
     "test": "jest --forceExit",
     "migrate:up": "node-pg-migrate up",
@@ -18,7 +19,10 @@
     "bcrypt": "^5.1.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.35.1",
+    "sequelize-cli": "^6.6.2"
   },
   "devDependencies": {
     "jest": "^29.7.0",

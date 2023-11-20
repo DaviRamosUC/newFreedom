@@ -1,46 +1,62 @@
-const pool = require('./db');
+const sequelize = require('./db');
+const { DataTypes } = require('sequelize');
+
+const User = sequelize.define('User', {
+  email: DataTypes.STRING,
+  senha: DataTypes.STRING,
+  jwt_token: DataTypes.TEXT,
+  created_at: DataTypes.DATE,
+  updated_at: DataTypes.DATE
+}, {
+  timestamps: false,
+  tableName: 'users'
+});
 
 const repo = {
-  saveUserToken: async (username, token) => {
-    const client = await pool.connect();
-    try {
-      await client.query('UPDATE users SET jwt_token = $1 WHERE email = $2', [token, username]);
-    } finally {
-      client.release();
+  saveUserToken: async (email, token) => {
+    const user = await User.findOne({ where: { email } });
+    if (user) {
+      user.jwt_token = token;
+      await user.save();
     }
   },
 
   createUser: async (email, senha, createdAt) => {
-    const hashedSenha = await bcrypt.hash(senha, 10);
-    const result = await pool.query(
-      'INSERT INTO users (email, senha, created_at) VALUES ($1, $2, $3) RETURNING *',
-      [email, hashedSenha, createdAt]
-    );
-    return result.rows[0];
+    const user = await User.create({ email, senha, created_at: createdAt });
+    return user;
   },
 
   getUserCredentials: async (email) => {
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    return result.rows[0];
+    const user = await User.findOne({ where: { email } });
+    return user;
   },
-  
+
   getUserById: async (id) => {
-    const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-    return result.rows[0];
+    const user = await User.findByPk(id);
+    return user;
   },
-  
+
   updateUserPassword: async (id, hashedPassword) => {
-    await pool.query('UPDATE users SET senha = $1, updated_at = NOW() WHERE id = $2', [hashedPassword, id]);
+    const user = await User.findByPk(id);
+    if (user) {
+      user.senha = hashedPassword;
+      user.updated_at = new Date();
+      await user.save();
+    }
   },
-  
+
   deleteUserById: async (id) => {
-    const result = await pool.query('DELETE FROM users WHERE id = $1', [id]);
-    return result.rowCount;
+    const deleted = await User.destroy({ where: { id } });
+    return deleted;
   },
 
   updateUserToken: async (userId, newToken) => {
-    await pool.query('UPDATE users SET jwt_token = $1 WHERE id = $2', [newToken, userId]);
-  },
-}
+    const user = await User.findByPk(userId);
+    if (user) {
+      user.jwt_token = newToken;
+      await user.save();
+    }
+  }
+};
 
 module.exports = repo;
