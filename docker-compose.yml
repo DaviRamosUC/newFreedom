@@ -1,10 +1,36 @@
 version: '3.1'
 services:
- 
-  app:
-    build: ./auth-service
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
     ports:
-      - "3000:3000"
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+    depends_on:
+      - courses
+      - auth
+    networks:
+      - freedom_network
+    
+  db:
+    image: postgres:11
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: freedom
+    ports:
+      - "5432:5432"
+    networks:
+      - freedom_network
+
+  auth:
+    build: ./auth-service
+    container_name: auth
+    ports:
+      - "3001:3001"
     environment:
       DB_HOST: db
       DB_USER: postgres
@@ -17,19 +43,18 @@ services:
     depends_on:
       - db
     networks:
-      - mynetwork
-  
-  db:
-    image: postgres:11
+      - freedom_network
+ 
+  courses:
+    build: ./course-service
+    container_name: courses
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: freedom
+      - PORT=3002
     ports:
-      - "5432:5432"
+      - "3002:3002"
     networks:
-      - mynetwork
+      - freedom_network
 
 networks:
-  mynetwork:
+  freedom_network:
     driver: bridge

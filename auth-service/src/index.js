@@ -14,7 +14,7 @@ sequelize.authenticate()
 
 app.use(express.json()); // Para parsear JSON no corpo das requisições
 
-app.post('/login', async (req, res) => {
+app.post('/auth/login', async (req, res) => {
   const { email, senha } = req.body;
   try {
     const user = await repo.getUserCredentials(email);
@@ -38,7 +38,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-app.post('/create-user', async (req, res) => {
+app.post('/auth/create-user', async (req, res) => {
   try {
     const { email, senha } = req.body;
     const createdAt = new Date();
@@ -52,7 +52,7 @@ app.post('/create-user', async (req, res) => {
   }
 });
 
-app.post('/revalidate-token', async (req, res) => {
+app.post('/auth/revalidate-token', async (req, res) => {
   try {
     const { oldToken } = req.body;
 
@@ -77,7 +77,7 @@ app.post('/revalidate-token', async (req, res) => {
   }
 });
 
-app.post('/validate-token', (req, res) => {
+app.post('/auth/validate-token', (req, res) => {
   try {
     const { token } = req.body;
 
@@ -96,7 +96,7 @@ app.post('/validate-token', (req, res) => {
   }
 });
 
-app.put('/change-password', async (req, res) => {
+app.put('/auth/change-password', async (req, res) => {
   try {
     const { id, oldPassword, newPassword } = req.body;
 
@@ -122,7 +122,7 @@ app.put('/change-password', async (req, res) => {
   }
 });
 
-app.delete('/delete-user/:id', async (req, res) => {
+app.delete('/auth/delete-user/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const deleteUser = await repo.deleteUserById(id);

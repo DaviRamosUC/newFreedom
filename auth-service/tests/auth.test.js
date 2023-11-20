@@ -11,7 +11,7 @@ describe('Testes de usuário', () => {
     const createdAt = new Date().getTime();
     testUserEmail = `usuario_teste${createdAt}@test.com`;
     const createUserResponse = await request(app)
-      .post('/create-user')
+      .post('/auth/create-user')
       .send({
         email: testUserEmail,
         senha: 'senha_teste'
@@ -24,7 +24,7 @@ describe('Testes de usuário', () => {
   // Teste de login
   test('Deve realizar o login com sucesso', async () => {
     const loginResponse = await request(app)
-      .post('/login')
+      .post('/auth/login')
       .send({
         email: testUserEmail,
         senha: 'senha_teste'
@@ -41,7 +41,7 @@ describe('Testes de usuário', () => {
     const newPassword = 'nova_senha123';
 
     const res = await request(app)
-      .put('/change-password')
+      .put('/auth/change-password')
       .send({
         id: testUserId,
         oldPassword: oldPassword,
@@ -54,7 +54,7 @@ describe('Testes de usuário', () => {
 
   test('Deve revalidar o token e retornar um novo', async () => {
     const res = await request(app)
-      .post('/revalidate-token')
+      .post('/auth/revalidate-token')
       .send({ testUserToken });
   
     expect(res.statusCode).toEqual(200); // Ou outro código de status que você espera

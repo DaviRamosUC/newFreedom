@@ -6,11 +6,11 @@ describe('Curso Routes', () => {
 
   beforeAll(async () => {
     // Simule o login ou obtenha um token de teste válido do seu microserviço de autenticação
-    authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c3VhcmlvX3Rlc3RlIiwiaWF0IjoxNzAwNDkxMTY1LCJleHAiOjE3MDA0OTQ3NjV9.i2unKT0KWy2Tx6kEGWfEuXyHrmEPiRXZg8iOuJPh_N4'; // Substitua pelo seu token real
+    authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c3VhcmlvX3Rlc3RlIiwiaWF0IjoxNzAwNDk1MTg3LCJleHAiOjE3MDA0OTg3ODd9.q5PS-NHOctAXolOEojdu_6DxbiiLjGjJJZxGHCnV8ew'; // Substitua pelo seu token real
     courseId = '';
   });
 
-  test('POST /create-course - deve criar um novo curso', async () => {
+  test('POST /curses/create-course - deve criar um novo curso', async () => {
     const courseData = {
       titulo: 'Curso Teste',
       descricao: 'Descrição Teste',
@@ -18,7 +18,7 @@ describe('Curso Routes', () => {
     };
 
     const response = await request(app)
-      .post('/create-course')
+      .post('/curses/create-course')
       .set('Authorization', `${authToken}`)
       .send(courseData);
 
@@ -42,6 +42,21 @@ describe('Curso Routes', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.text).toContain(`Curso com ID ${courseId} atualizado com sucesso.`);
+  });
+
+  test('POST /courses/:courseId/comments - deve adicionar um comentário ao curso', async () => {
+    const commentData = {
+      userId: 'id_do_usuario_teste',
+      comentario: 'Este é um comentário de teste'
+    };
+
+    const response = await request(app)
+      .post(`/courses/${courseId}/comments`)
+      .set('Authorization', `${authToken}`)
+      .send(commentData);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.text).toContain('Comentário adicionado com sucesso.');
   });
 
   afterAll(async () => {

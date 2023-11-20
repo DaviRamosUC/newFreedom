@@ -1,0 +1,4 @@
+FROM nginx:latest
+EXPOSE 80
+RUN rm -rf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/nginx.conf
