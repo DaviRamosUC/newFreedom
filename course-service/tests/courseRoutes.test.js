@@ -28,14 +28,29 @@ describe('Curso Routes', () => {
     courseId = dataResponse[1].trim()
   });
 
-  test('POST /courses/:id/like - deve adicionar um like ao curso', async () => {
-    console.log(courseId)
+  test('PUT /courses/:id - deve atualizar um curso', async () => {
+    const updatedData = {
+      titulo: 'Novo Título',
+      descricao: 'Nova Descrição',
+      urlMedia: "https://youtu.be/efXKIEvKXOc?si=Ut_407OjM50qXpgM"
+    };
+
     const response = await request(app)
-      .post(`/courses/${courseId}/like`)
+      .put(`/courses/${courseId}`)
+      .set('Authorization', `${authToken}`)
+      .send(updatedData);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.text).toContain(`Curso com ID ${courseId} atualizado com sucesso.`);
+  });
+
+  afterAll(async () => {
+    const response = await request(app)
+      .delete(`/courses/${courseId}`)
       .set('Authorization', `${authToken}`);
 
     expect(response.statusCode).toBe(200);
-    expect(response.text).toContain('Like adicionado ao curso');
+    expect(response.text).toContain(`Curso com ID ${courseId} deletado com sucesso.`);
   });
 
 });

@@ -41,23 +41,45 @@ app.post('/create-course', async (req, res) => {
   }
 });
 
-app.post('/courses/:id/like', async (req, res) => {
+app.delete('/courses/:id', async (req, res) => {
+    const courseId = req.params.id;
+  
     try {
-      const courseId = req.params.id;
       const courseRef = db.collection('courses').doc(courseId);
+      const courseDoc = await courseRef.get();
   
-      // Pode ser um incremento simples ou um controle mais complexo de usuários que deram like
-      await courseRef.update({ likes: admin.firestore.FieldValue.increment(1) });
+      if (!courseDoc.exists) {
+        return res.status(404).send('Curso não encontrado.');
+      }
   
-      res.status(200).send(`Like adicionado ao curso ${courseId}`);
+      await courseRef.delete();
+      res.status(200).send(`Curso com ID ${courseId} deletado com sucesso.`);
     } catch (error) {
-      console.error('Erro ao adicionar like:', error);
-      res.status(500).send('Erro interno');
+      console.error('Erro ao deletar curso:', error);
+      res.status(500).send('Erro interno ao deletar curso.');
     }
-  });
+});
 
-// Outras rotas...
-
-const PORT = process.env.PORT || 3000;
+app.put('/courses/:id', async (req, res) => {
+    const courseId = req.params.id;
+    const updatedData = req.body;
+  
+    try {
+      const courseRef = db.collection('courses').doc(courseId);
+      const courseDoc = await courseRef.get();
+  
+      if (!courseDoc.exists) {
+        return res.status(404).send('Curso não encontrado.');
+      }
+  
+      await courseRef.update(updatedData);
+      res.status(200).send(`Curso com ID ${courseId} atualizado com sucesso.`);
+    } catch (error) {
+      console.error('Erro ao atualizar curso:', error);
+      res.status(500).send('Erro interno ao atualizar curso.');
+    }
+});
+  
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
 module.exports = app;
