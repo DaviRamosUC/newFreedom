@@ -1,3 +1,4 @@
 node_modules
-
 auth-service/.env
+.env
+course-service/serviceAccountKey.json

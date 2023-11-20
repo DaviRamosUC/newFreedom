@@ -77,6 +77,25 @@ app.post('/revalidate-token', async (req, res) => {
   }
 });
 
+app.post('/validate-token', (req, res) => {
+  try {
+    const { token } = req.body;
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).send('Token inválido ou expirado');
+      }
+
+      // Retorna alguma informação útil após a validação
+      // Por exemplo, podemos retornar os dados decodificados do token
+      res.json({ valid: true, data: decoded });
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Erro no servidor');
+  }
+});
+
 app.put('/change-password', async (req, res) => {
   try {
     const { id, oldPassword, newPassword } = req.body;
