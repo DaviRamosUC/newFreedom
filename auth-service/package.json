@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node ./src/index.js",
-    "test": "jest"
+    "dev": "nodemon ./src/index.js",
+    "test": "jest --forceExit",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:redo": "node-pg-migrate redo",
+    "migrate:create": "node-pg-migrate create"
   },
   "keywords": [],
   "author": "",
@@ -14,11 +18,13 @@
     "bcrypt": "^5.1.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2",
-    "pg": "^8.11.3"
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "node-pg-migrate": "^6.2.2",
+    "nodemon": "^3.0.1",
+    "pg": "^8.11.3",
     "supertest": "^6.3.3"
   }
 }

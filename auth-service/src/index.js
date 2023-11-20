@@ -11,8 +11,7 @@ const jwtSecret = process.env.JWT_SECRET;
 app.use(express.json()); // Para parsear JSON no corpo das requisições
 
 app.post('/login', async (req, res) => {
-  const { email, senha } = req.query;
-  console.log(req)
+  const { email, senha } = req.body;
   try {
     const user = await repo.getUserCredentials(email);
 
@@ -28,7 +27,7 @@ app.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user.id, email }, jwtSecret, { expiresIn: '1h' });
     await repo.saveUserToken(email, token);
 
-    res.json({ token, id: user.id });
+    res.json({ token });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
@@ -84,18 +83,18 @@ app.put('/change-password', async (req, res) => {
 
     // Verificar a senha antiga
     const user = await repo.getUserById(id)
-    if (user.rows.length === 0) {
+    if (user.id == null || user.id == undefined) {
       return res.status(404).send('Usuário não encontrado');
     }
 
-    const validPassword = await bcrypt.compare(oldPassword, user.rows[0].senha);
+    const validPassword = await bcrypt.compare(oldPassword, user.senha);
     if (!validPassword) {
       return res.status(400).send('Senha antiga incorreta');
     }
 
     // Hash da nova senha e atualização
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await repo.updateUserPassword(hashedPassword, id)
+    await repo.updateUserPassword(id, hashedPassword)
 
     res.status(200).send('Senha alterada com sucesso');
   } catch (err) {

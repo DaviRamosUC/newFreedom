@@ -2,43 +2,48 @@ const request = require('supertest');
 const app = require('../src/index'); // Importe seu app Express
 
 describe('Testes de usuário', () => {
-  var id = 1;
-  const createdAt = new Date();
-  test('Deve criar um novo usuário', async () => {
-    const res = await request(app)
+  let testUserEmail;
+  let testUserId;
+  let testUserToken;
+
+  // Criar usuário antes de executar os testes
+  beforeAll(async () => {
+    const createdAt = new Date().getTime();
+    testUserEmail = `usuario_teste${createdAt}@test.com`;
+    const createUserResponse = await request(app)
       .post('/create-user')
       .send({
-        email: 'usuario_teste',
+        email: testUserEmail,
         senha: 'senha_teste'
       });
-      
-    expect(res.statusCode).toEqual(200); // Ou outro código de status que você espera
-    expect(res.body).toHaveProperty('id'); // Verifica se a resposta tem a propriedade id
+
+    expect(createUserResponse.statusCode).toEqual(200);
+    testUserId = createUserResponse.body.id; // Armazene o ID do usuário criado
   });
 
-  test('Login bem-sucedido deve retornar um token JWT', async () => {
-    const response = await request(app)
-      .post('/login') // Rota de login que você irá criar
+  // Teste de login
+  test('Deve realizar o login com sucesso', async () => {
+    const loginResponse = await request(app)
+      .post('/login')
       .send({
-        email: 'usuario_teste'+createdAt,
+        email: testUserEmail,
         senha: 'senha_teste'
       });
 
-    id = response.body.id;
-
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveProperty('token');
+    console.log(loginResponse)
+    expect(loginResponse.statusCode).toEqual(200);
+    expect(loginResponse.body).toHaveProperty('token'); // Verifica se o token foi retornado
+    testUserToken = loginResponse.body.token
   });
 
   test('Deve alterar a senha do usuário', async () => {
-    const userId = id; // Substitua pelo ID de um usuário de teste
     const oldPassword = 'senha_teste'; // A senha atual do usuário de teste
     const newPassword = 'nova_senha123';
 
     const res = await request(app)
       .put('/change-password')
       .send({
-        id: userId,
+        id: testUserId,
         oldPassword: oldPassword,
         newPassword: newPassword
       });
@@ -47,24 +52,19 @@ describe('Testes de usuário', () => {
     // Aqui você pode adicionar mais verificações conforme necessário
   });
 
-  test('Deve excluir o usuário', async () => {
-    const res = await request(app)
-      .delete(`/delete-user/${id}`);
-
-    expect(res.statusCode).toEqual(200); // Ou outro código de status que você espera
-    // Aqui você pode adicionar mais verificações conforme necessário
-  });
-
-  const oldToken = 'seu_token_jwt_existente'; // Substitua pelo token JWT de um usuário de teste
-
   test('Deve revalidar o token e retornar um novo', async () => {
     const res = await request(app)
       .post('/revalidate-token')
-      .send({ oldToken });
+      .send({ testUserToken });
   
     expect(res.statusCode).toEqual(200); // Ou outro código de status que você espera
     expect(res.body).toHaveProperty('token'); // Verifica se um novo token foi retornado
     // Aqui você pode adicionar mais verificações conforme necessário
   });
 
+  // Excluir o usuário após os testes
+  afterAll(async () => {
+    const deleteResponse = await request(app).delete(`/delete-user/${testUserId}`);
+    expect(deleteResponse.statusCode).toEqual(200);
+  });
 });
