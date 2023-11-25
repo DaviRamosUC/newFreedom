@@ -55,6 +55,11 @@ services:
     networks:
       - freedom_network
 
+  blog-service:
+    build: ./blog-service
+    ports:
+      - "3003:3003"
+
 networks:
   freedom_network:
     driver: bridge
