@@ -60,6 +60,11 @@ services:
     ports:
       - "3003:3003"
 
+  marketplace-service:
+    build: ./marketplace-service
+    ports:
+      - "3004:3004"
+
 networks:
   freedom_network:
     driver: bridge
