@@ -4,14 +4,13 @@ const blogController = {
   // Cria uma nova publicação
   createPost: async (req, res) => {
     try {
-      const { title, subtitle, content, authorName, imageUrl } = req.body;
+      const { titulo, subtitulo, conteudo, nomeAutor } = req.body;
       const newPost = {
-        title,
-        subtitle,
-        content,
-        authorName,
-        imageUrl,
-        createdAt: new Date()
+        titulo,
+        subtitulo,
+        conteudo,
+        nomeAutor,
+        created_at: new Date()
       };
 
       const ref = await firebase.db.collection('posts').add(newPost);
@@ -77,7 +76,35 @@ const blogController = {
       console.error('Erro ao recuperar publicações:', error);
       res.status(500).send('Erro interno ao recuperar publicações.');
     }
-  }
+  },
+
+  uploadImage: async (req, res) => {
+    const { id } = req.params;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).send('Nenhum arquivo foi enviado.');
+    }
+
+    const blob = firebase.storage.bucket().file(`posts/${id}/${file.originalname}`);
+    const blobStream = blob.createWriteStream({
+      metadata: {
+        contentType: file.mimetype,
+      },
+    });
+
+    blobStream.on('error', (error) => res.status(500).send('Erro ao fazer upload da imagem.'));
+
+    blobStream.on('finish', async () => {
+      const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${storage.bucket().name}/o/${encodeURIComponent(blob.name)}?alt=media`;
+
+      await firebase.db.collection('posts').doc(id).update({ imageUrl: publicUrl });
+
+      res.status(200).send({ imageUrl: publicUrl });
+    });
+
+    blobStream.end(file.buffer);
+  },
 };
 
 module.exports = blogController;
