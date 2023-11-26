@@ -1,4 +1,4 @@
-const firebase = require('../config/firebaseConfig'); // Caminho para sua configuração do Firebase
+const {db, storage} = require('../config/firebaseConfig'); // Caminho para sua configuração do Firebase
 
 const blogController = {
   // Cria uma nova publicação
@@ -13,7 +13,7 @@ const blogController = {
         created_at: new Date()
       };
 
-      const ref = await firebase.db.collection('posts').add(newPost);
+      const ref = await db.collection('posts').add(newPost);
       res.status(201).json({ id: ref.id, ...newPost });
     } catch (error) {
       console.error('Erro ao criar a publicação:', error);
@@ -86,7 +86,7 @@ const blogController = {
       return res.status(400).send('Nenhum arquivo foi enviado.');
     }
 
-    const blob = firebase.storage.bucket().file(`posts/${id}/${file.originalname}`);
+    const blob = storage.bucket().file(`posts/${id}/${file.originalname}`);
     const blobStream = blob.createWriteStream({
       metadata: {
         contentType: file.mimetype,
@@ -98,7 +98,7 @@ const blogController = {
     blobStream.on('finish', async () => {
       const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${storage.bucket().name}/o/${encodeURIComponent(blob.name)}?alt=media`;
 
-      await firebase.db.collection('posts').doc(id).update({ imageUrl: publicUrl });
+      await db.collection('posts').doc(id).update({ imageUrl: publicUrl });
 
       res.status(200).send({ imageUrl: publicUrl });
     });

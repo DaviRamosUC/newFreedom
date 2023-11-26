@@ -38,7 +38,7 @@ services:
       DB_NAME: freedom
       DB_PORT: 5432
     volumes:
-      - ./auth-service/:/usr/src/app
+      - ./auth-service:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
       - db
@@ -54,16 +54,28 @@ services:
       - "3002:3002"
     networks:
       - freedom_network
+    volumes:
+      - ./course-service:/usr/src/app
 
   blog-service:
     build: ./blog-service
+    container_name: blog
     ports:
       - "3003:3003"
+    networks:
+      - freedom_network
+    volumes:
+      - ./blog-service:/usr/src/app
 
   marketplace-service:
     build: ./marketplace-service
+    container_name: marketplace
     ports:
       - "3004:3004"
+    networks:
+      - freedom_network
+    volumes:
+      - ./marketplace-service:/usr/src/app
 
 networks:
   freedom_network:
