@@ -76,6 +76,16 @@ services:
       - freedom_network
     volumes:
       - ./marketplace-service:/usr/src/app
+    
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - freedom_network
+    depends_on:
+      - nginx
 
 networks:
   freedom_network:
