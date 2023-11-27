@@ -21,8 +21,7 @@ const authController = {
 
             const token = jwt.sign({ id: user.id, email }, jwtSecret, { expiresIn: '1h' });
             await repo.saveUserToken(email, token);
-
-            res.json({ token });
+            res.json({ token, user });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server error');
@@ -35,6 +34,10 @@ const authController = {
             const hashedSenha = await bcrypt.hash(senha, 10); // 10 é o número de rounds para o salt
 
             const newUser = await repo.createUser(email, hashedSenha, createdAt)
+            const user = await repo.getUserCredentials(email);
+            const token = jwt.sign({ id: user.id, email }, jwtSecret, { expiresIn: '1h' });
+            await repo.saveUserToken(email, token);
+            newUser.jwt_token = token
             res.json(newUser);
         } catch (err) {
             console.error(err.message);

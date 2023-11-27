@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const sequelize = require('./config/db');
 const authRoutes = require('./routes/authRoutes')
 const port = process.env.PORT || 3000;
@@ -10,6 +11,7 @@ sequelize.authenticate()
 
 const app = express();
 app.use(express.json()); // Para parsear JSON no corpo das requisições
+app.use(cors());
 app.use('/auth', authRoutes);
 
 app.listen(port, () => {
