@@ -8,6 +8,7 @@ const courseController = require('../controllers/courseController');
 
 // Rotas
 router.post('/create-course', courseController.createCourse);
+router.get('/getAllCourses', courseController.getCourses);
 router.delete('/:id', courseController.deleteCourse);
 router.put('/:id', courseController.updateCourse);
 router.post('/add-comment', courseController.addCommentCourse);

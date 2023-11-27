@@ -23,7 +23,6 @@ export function CardDefault() {
         const collectionMessage = doc(firestore, "chats", chatId);
         const docSnap = await getDoc(collectionMessage);
         if (docSnap.exists()) {
-            console.log({...docSnap.data().message})
             loadedMessages.push({...docSnap.data().message});
         }
 

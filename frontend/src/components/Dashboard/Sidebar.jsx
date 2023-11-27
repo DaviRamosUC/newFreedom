@@ -73,6 +73,12 @@ export function SidebarWithSearch() {
           </ListItem>
           <AccordionBody className="py-1">
             <List className="p-0">
+            <ListItem onClick={()=> navigate('/dashboard')}>
+                <ListItemPrefix>
+                  <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                </ListItemPrefix>
+                Dashboard
+              </ListItem>
               <ListItem onClick={()=> navigate('/about')}>
                 <ListItemPrefix>
                   <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
@@ -158,7 +164,7 @@ export function SidebarWithSearch() {
           </ListItemPrefix>
           Configurações
         </ListItem>
-        <ListItem>
+        <ListItem onClick={()=> navigate('/login')}>
           <ListItemPrefix>
             <PowerIcon className="h-5 w-5" />
           </ListItemPrefix>

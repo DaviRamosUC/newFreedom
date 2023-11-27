@@ -3,17 +3,43 @@ import {
   CardBody,
   CardHeader,
   CardFooter,
-  Avatar,
   Typography,
-  Tooltip,
   Button,
+  Tooltip,
+  Avatar,
 } from "@material-tailwind/react";
 
 import { Link } from "react-router-dom";
 import { SidebarWithSearch } from "../components/Dashboard/Sidebar";
 import { projectsData } from '../data'
+import { useEffect, useState } from "react";
+import axios from 'axios';
 
 const CoursesPage = () => {
+  const [courses, setCourses] = useState([]);
+  const token = localStorage.getItem('userToken');
+
+  function youtube_parser(url){
+    var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    var match = url.match(regExp);
+    return (match&&match[7].length==11)? match[7] : false;
+  }
+
+  const handleGetAllCourses = async () => {
+    await axios.get('http://localhost/courses/getAllCourses', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).then((response) => {
+      setCourses([...response.data])
+      console.log([...response.data])
+    })
+  }
+
+  useEffect(() => {
+    handleGetAllCourses();
+  }, []);
+
   return (
     <div className="flex h-full bg-gray-100">
       <SidebarWithSearch />
@@ -26,20 +52,20 @@ const CoursesPage = () => {
             variant="small"
             className="font-normal text-blue-gray-500"
           >
-            Architects design houses
+            Cursos disponiveis
           </Typography>
           <div className="mt-6 grid grid-cols-1 gap-12 md:grid-cols-2 xl:grid-cols-4">
-            {projectsData.map(
-              ({ img, title, description, tag, route, members }) => (
-                <Card key={title} color="transparent" shadow={false}>
+            {courses.length > 0 && courses.map(
+              ({ id, titulo, descricao, urlMedia, members=projectsData.members }) => (
+                <Card key={id} color="transparent" shadow={false}>
                   <CardHeader
                     floated={false}
                     color="gray"
                     className="mx-0 mt-0 mb-4 h-64 xl:h-40"
                   >
                     <img
-                      src={img}
-                      alt={title}
+                      src={`https://img.youtube.com/vi/${youtube_parser(urlMedia)}/maxresdefault.jpg`}
+                      alt={titulo}
                       className="h-full w-full object-cover"
                     />
                   </CardHeader>
@@ -48,28 +74,31 @@ const CoursesPage = () => {
                       variant="small"
                       className="font-normal text-blue-gray-500"
                     >
-                      {tag}
+                      Financeiro
                     </Typography>
                     <Typography
                       variant="h5"
                       color="blue-gray"
                       className="mt-1 mb-2"
                     >
-                      {title}
+                      {titulo}
                     </Typography>
                     <Typography
                       variant="small"
                       className="font-normal text-blue-gray-500"
                     >
-                      {description}
+                      {descricao}
                     </Typography>
                   </CardBody>
                   <CardFooter className="mt-6 flex items-center justify-between py-0 px-1">
-                    <Link to={route}>
-                      <Button variant="outlined" size="sm">
-                        view project
-                      </Button>
-                    </Link>
+                    {
+                      urlMedia &&
+                      <Link to={urlMedia}>
+                        <Button variant="outlined" size="sm">
+                          Ver curso
+                        </Button>
+                      </Link>
+                    }
                     <div>
                       {members.map(({ img, name }, key) => (
                         <Tooltip key={name} content={name}>

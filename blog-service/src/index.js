@@ -1,10 +1,12 @@
 require("dotenv").config()
 const express = require('express');
+const cors = require('cors');
 const blogRoutes = require('./routes/blogRoutes');
 const authMiddleware = require('./middlewares/auth_middleware')
 
 const app = express();
 app.use(express.json()); // Middleware para parsear JSON
+app.use(cors())
 app.use(authMiddleware.validateTokenMiddleware)
 app.use('/blog', blogRoutes);
 
